@@ -1,0 +1,56 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/template.xhtml">
+	
+<ui:param name="bean" value="#{alunoBean}"/>
+<ui:param name="entidade" value="#{alunoBean.entidade}"/>
+<ui:define name="cadastro">
+
+		<h:panelGrid columns="2">
+			<h:panelGrid>
+				<p:outputLabel value="Nome"/>
+				<p:inputText value="#{entidade.nome}" required="true" requiredMessage="O campo Nome não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Matrícula"/>
+				<p:inputText value="#{entidade.matricula}" required="true" requiredMessage="O campo Matrícula não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Data de Nascimento"/>
+				<p:calendar pattern="dd/MM/yyyy" value="#{entidade.dataNascimento}" required="true" 
+							requiredMessage="O campo Data de Nascimento não pode ser em branco."/>
+			</h:panelGrid>
+		</h:panelGrid>
+</ui:define>
+
+<ui:define name="lista">
+
+	<p:column headerText="ID">
+		<p:outputLabel value="#{item.id}"/>
+	</p:column>
+	<p:column headerText="Aluno">
+		<p:outputLabel value="#{item.nome}"/>
+	</p:column>
+	<p:column headerText="Matrícula">
+		<p:outputLabel value="#{item.matricula}"/>
+	</p:column>
+	
+
+</ui:define>
+
+<ui:define name="acoes">
+	<p:column headerText="Ações" style="width: 100px">
+		<p:commandButton title="Editar" update="@([id$=conteudo])" action="#{bean.prepareEditar}" icon="ui-icon-pencil" ajax="true">
+			<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+		</p:commandButton>
+		<p:commandButton title="Excluir" process="@this" onclick="PF('confirmation').show()" icon="ui-icon-close">
+			<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+		</p:commandButton>
+	</p:column>
+
+</ui:define>
+
+</ui:composition>

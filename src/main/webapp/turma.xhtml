@@ -1,0 +1,90 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" 
+	template="/WEB-INF/templates/template.xhtml">
+	
+<ui:param name="bean" value="#{turmaBean}"/>
+<ui:param name="entidade" value="#{turmaBean.entidade}"/>
+<ui:define name="cadastro">
+	
+		<h:panelGrid columns="2">
+			<h:panelGrid>
+				<p:outputLabel value="Curso"/>
+				<p:inputText value="#{entidade.curso}" required="true" requiredMessage="O campo Curso não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Data Inicio"/>
+				<p:calendar pattern="dd/MM/yyyy" value="#{entidade.dataInicio}" required="true" 
+							requiredMessage="O campo Data Inicio não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Data Fim"/>
+				<p:calendar pattern="dd/MM/yyyy" value="#{entidade.dataFim}" required="true" 
+							requiredMessage="O campo Data Fim não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Horário"/>
+				<p:calendar pattern="hh:mm" value="#{entidade.horario}" required="true" timeOnly="true"
+							requiredMessage="O campo Horário não pode ser em branco."/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Turno"/>
+				<p:selectOneMenu value="#{entidade.turno}" required="true" requiredMessage="O campo Turno não pode ser em branco.">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{enumBean.turnoEnum}" var="e" itemLabel="#{e.label}" itemValue="#{e}"/>
+				</p:selectOneMenu>
+			</h:panelGrid>
+		</h:panelGrid>
+		
+		<p:fieldset legend="Alunos">
+			<h:panelGrid id="gridAluno">
+				<p:selectOneMenu value="#{bean.alunoSelecionado}" converter="alunoConverter" converterMessage="Erro converter" style="width: 300px" >
+					<f:selectItem itemLabel="Selecione"/>
+					<f:selectItems value="#{bean.alunos}" var="a" itemLabel="#{a.nome}" itemValue="#{a}"/>
+				</p:selectOneMenu>
+				<p:commandButton value="Add" action="#{bean.adicionarAluno}" process="@([id$=gridAluno])" update="@([id$=gridAluno], [id$=listaAlunos])"/>
+			</h:panelGrid>
+			
+			<p:dataTable value="#{entidade.alunos}" var="a" id="listaAlunos">
+				<p:column headerText="Aluno">
+					<p:outputLabel value="#{a.nome}"/>
+				</p:column>
+				<p:column headerText="Matrícula">
+					<p:outputLabel value="#{a.matricula}"/>
+				</p:column>
+				<p:column headerText="Ações">
+					<p:commandButton title="Excluir" action="#{bean.removerAluno(a)}" process="@this" update="@([id$=listaAlunos])" icon="pi pi-fw pi-times-circle"/>
+				</p:column>
+			
+			</p:dataTable>
+		</p:fieldset>
+		
+</ui:define>
+
+<ui:define name="lista">
+
+	<p:column headerText="ID">
+		<p:outputLabel value="#{item.id}"/>
+	</p:column>
+	<p:column headerText="Curso">
+		<p:outputLabel value="#{item.curso}"/>
+	</p:column>
+	
+
+</ui:define>
+
+<ui:define name="acoes">
+	<p:column headerText="Ações" style="width: 100px">
+		<p:commandButton title="Editar" update="@([id$=conteudo])" action="#{bean.prepareEditar}" icon="ui-icon-pencil" ajax="true">
+			<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+		</p:commandButton>
+		<p:commandButton title="Excluir" process="@this" onclick="PF('confirmation').show()" type="button" icon="ui-icon-close">
+			<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+		</p:commandButton>
+	</p:column>
+
+</ui:define>
+
+</ui:composition>

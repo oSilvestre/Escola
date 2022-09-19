@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Escola</title>
+<!-- 	<script type="text/javascript" src="/WEB-INF/resources/js/jquery.js"></script> -->
+</h:head>
+<h:body>
+	<h:panelGroup>
+	<div class="card" >
+		<ui:include src="/menu.xhtml"></ui:include>
+	</div>
+
+	<p:panel id="conteudo" >
+		<ui:insert name="conteudo">
+			<p:growl id="growl" showDetail="true" ><p:autoUpdate/></p:growl>
+			<p:panel rendered="#{bean.state eq 'PESQUISAR'}">
+				<h:form id="lista">
+					<p:dataTable value="#{bean.lista}" var="item">
+						<ui:insert name="lista"/>
+						<ui:insert name="acoes"/>
+					</p:dataTable>
+					<p:commandButton value="Cadastrar" update=":conteudo" process="@this" actionListener="#{bean.prepareCadastrar}"/>
+				</h:form>
+			</p:panel>
+			<p:panel rendered="#{bean.state eq 'CADASTRAR' || bean.state eq 'EDITAR'}">
+				<h:form>
+					<ui:insert name="cadastro"/>
+					<p:commandButton value="Gravar" action="#{bean.gravar}" process="@form" update=":conteudo"/>
+					<p:commandButton value="Voltar" update=":conteudo" process="@this" actionListener="#{bean.voltar}"/>
+				</h:form>
+			</p:panel>
+		</ui:insert>
+	</p:panel>
+	</h:panelGroup>
+	
+	<p:confirmDialog widgetVar="confirmation" header="Excluir" message="Deseja realmente excluir esse registro?" >
+		<p:commandButton value="Sim" action="#{bean.excluir}" oncomplete="PF('confirmation').hide()" update="@([id$=lista])" />
+		<p:commandButton type="button" value="Não" onclick="PF('confirmation').hide()" />
+	</p:confirmDialog>
+</h:body>
+</html>
