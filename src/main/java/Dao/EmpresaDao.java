@@ -1,26 +1,25 @@
 package Dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import Model.Aluno;
+import Model.Empresa;
 import Util.Conexao;
 import inteface.Dao;
 
-public class AlunoDao implements Dao<Aluno> {
+public class EmpresaDao implements Dao<Empresa> {
 
-	public void inserir(Aluno aluno) {
-		String sql = "INSERT INTO aluno (nome, matricula, dt_nascimento) values (?,?,?);";
+	public void inserir(Empresa empresa) {
+		String sql = "INSERT INTO empresa (razao_social, nome_fantasia, cnpj) values (?,?,?);";
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, aluno.getNome());
-			ps.setInt(2, aluno.getMatricula());
-			ps.setDate(3, new Date(aluno.getDataNascimento().getTime()));
+			ps.setString(1, empresa.getRazaoSocial());
+			ps.setString(2, empresa.getNomeFantasia());
+			ps.setLong(3, empresa.getCnpj());
 			ps.execute();
 			ps.close();
 			conn.close();
@@ -30,16 +29,16 @@ public class AlunoDao implements Dao<Aluno> {
 		}
 	}
 
-	public List<Aluno> buscar(Aluno entidade, int offset, int limit, String sortField, int sortOrder) {
-		List<Aluno> lista = new ArrayList<>();
+	public List<Empresa> buscar(Empresa entidade, int offset, int limit, String sortField, int sortOrder) {
+		List<Empresa> lista = new ArrayList<>();
 		if (sortField == null) sortField = "id";
 		
 		String sort = "DESC";
 		if(sortOrder == 1)
 			sort = "ASC";
 		
-		String sql = " SELECT id, nome, matricula, dt_nascimento "
-				+ " FROM aluno "
+		String sql = " SELECT id, razao_social, nome_fantasia, cnpj "
+				+ " FROM empresa "
 				+ pesquisa(entidade)
 				+ " ORDER BY " + sortField + " " + sort
 				+ " OFFSET ? LIMIT ? ";
@@ -50,15 +49,15 @@ public class AlunoDao implements Dao<Aluno> {
 			ps.setInt(1, offset);
 			ps.setInt(2, limit);
 			ResultSet rs = ps.executeQuery();
-			Aluno aluno = null;
+			Empresa empresa = null;
 			while (rs.next()) {
-				aluno = new Aluno();
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
-				aluno.setMatricula(rs.getInt("matricula"));
-				aluno.setDataNascimento(rs.getDate("dt_nascimento"));
+				empresa = new Empresa();
+				empresa.setId(rs.getLong("id"));
+				empresa.setRazaoSocial(rs.getString("razao_social"));
+				empresa.setNomeFantasia(rs.getString("nome_fantasia"));
+				empresa.setCnpj(rs.getLong("cnpj"));
 				
-				lista.add(aluno);
+				lista.add(empresa);
 			}
 			
 			ps.close();
@@ -72,11 +71,11 @@ public class AlunoDao implements Dao<Aluno> {
 		return lista;
 	}
 	
-	public int total(Aluno entidade) {
+	public int total(Empresa entidade) {
 		int total = 0;
 		
 		String sql = " SELECT count(id) as total "
-				+ " FROM aluno "
+				+ " FROM empresa "
 				+ pesquisa(entidade);
 		
 		try {
@@ -98,17 +97,15 @@ public class AlunoDao implements Dao<Aluno> {
 		return total;
 	}
 	
-	private String pesquisa(Aluno aluno) {
+	private String pesquisa(Empresa empresa) {
 		String retorno = "";
 		
 		retorno += " AND ativo ";
 		
-		if(aluno.getId() != null)
-			retorno += " AND id = "+aluno.getId();
-		if(aluno.getNome() != null)
-			retorno += " AND nome ILIKE '%"+aluno.getNome()+"%'";
-		if(aluno.getMatricula() != null)
-			retorno += " AND matricula = "+aluno.getMatricula();
+		if(empresa.getId() != null)
+			retorno += " AND id = "+empresa.getId();
+		if(empresa.getRazaoSocial() != null)
+			retorno += " AND razao_social ILIKE '%"+empresa.getRazaoSocial()+"%'";
 		
 		if(!retorno.isEmpty()) retorno = " WHERE " + retorno.substring(5);
 		
@@ -116,15 +113,15 @@ public class AlunoDao implements Dao<Aluno> {
 	}
 
 	@Override
-	public void alterar(Aluno t) {
-		String sql =  "UPDATE aluno SET nome = ?, matricula = ?, dt_nascimento = ? WHERE id = ?";
+	public void alterar(Empresa t) {
+		String sql =  "UPDATE empresa SET razao_social = ?, nome_fantasia = ?, cnpj = ? WHERE id = ?";
 		
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, t.getNome());
-			ps.setInt(2, t.getMatricula());
-			ps.setDate(3, new Date(t.getDataNascimento().getTime()));
+			ps.setString(1, t.getRazaoSocial());
+			ps.setString(2, t.getNomeFantasia());
+			ps.setLong(3, t.getCnpj());
 			ps.setLong(4, t.getId());
 			ps.execute();
 			ps.close();
@@ -136,7 +133,7 @@ public class AlunoDao implements Dao<Aluno> {
 
 	@Override
 	public void deletar(Long id) {
-		String sql =  "UPDATE aluno SET ativo = FALSE WHERE id = ?";
+		String sql =  "UPDATE empresa SET ativo = FALSE WHERE id = ?";
 		
 		try {
 			Connection conn = Conexao.getConexao();
@@ -151,11 +148,11 @@ public class AlunoDao implements Dao<Aluno> {
 		
 	}
 	
-	public Aluno selecionar(Long id) {
-		Aluno aluno = new Aluno();
+	public Empresa selecionar(Long id) {
+		Empresa empresa = new Empresa();
 		
-		String sql = " SELECT id, nome, matricula, dt_nascimento "
-				+ " FROM aluno "
+		String sql = " SELECT id, razao_social, nome_fantasia, cnpj "
+				+ " FROM empresa "
 				+ " WHERE id = ?";
 		
 		try {
@@ -164,10 +161,10 @@ public class AlunoDao implements Dao<Aluno> {
 			ps.setLong(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
-				aluno.setMatricula(rs.getInt("matricula"));
-				aluno.setDataNascimento(rs.getDate("dt_nascimento"));
+				empresa.setId(rs.getLong("id"));
+				empresa.setRazaoSocial(rs.getString("razao_social"));
+				empresa.setNomeFantasia(rs.getString("nome_fantasia"));
+				empresa.setCnpj(rs.getLong("cnpj"));
 			}
 			ps.close();
 			conn.close();
@@ -175,32 +172,38 @@ public class AlunoDao implements Dao<Aluno> {
 			e.printStackTrace();
 		}
 		
-		return aluno;
+		return empresa;
 	}
 
-	public List<Aluno> listarAlunos() {
-		List<Aluno> lista = new ArrayList<>();
+	public List<Empresa> completarEmpresa(String query) {
+		List<Empresa> lista = new ArrayList<>();
 		
-		String sql = " SELECT id, nome "
-				+ " FROM aluno ";
+		String sql = " SELECT id, razao_social "
+				+ " FROM empresa "
+				+ " WHERE ativo "
+				+ " AND razao_social ILIKE '"+query+"%'"
+				+ " LIMIT 10";
 		
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			Aluno aluno = null;
+			Empresa t = null;
 			while (rs.next()) {
-				aluno = new Aluno();
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
+				t = new Empresa();
+				t.setId(rs.getLong("id"));
+				t.setRazaoSocial(rs.getString("razao_social"));
 				
-				lista.add(aluno);
+				lista.add(t);
 			}
+			
 			ps.close();
 			conn.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return lista;
 	}
 }

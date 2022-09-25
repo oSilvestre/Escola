@@ -5,8 +5,8 @@
 	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/templates/template.xhtml">
 	
-<ui:param name="bean" value="#{alunoBean}"/>
-<ui:param name="entidade" value="#{alunoBean.entidade}"/>
+<ui:param name="bean" value="#{produtoBean}"/>
+<ui:param name="entidade" value="#{produtoBean.entidade}"/>
 <ui:define name="cadastro">
 
 		<h:panelGrid columns="2">
@@ -15,13 +15,13 @@
 				<p:inputText value="#{entidade.nome}" required="true" requiredMessage="O campo Nome não pode ser em branco."/>
 			</h:panelGrid>
 			<h:panelGrid>
-				<p:outputLabel value="Matrícula"/>
-				<p:inputText value="#{entidade.matricula}" required="true" requiredMessage="O campo Matrícula não pode ser em branco."/>
+				<p:outputLabel value="Descricao"/>
+				<p:inputText value="#{entidade.descricao}" required="true" requiredMessage="O campo Descrição não pode ser em branco."/>
 			</h:panelGrid>
 			<h:panelGrid>
-				<p:outputLabel value="Data de Nascimento"/>
-				<p:calendar pattern="dd/MM/yyyy" value="#{entidade.dataNascimento}" required="true" 
-							requiredMessage="O campo Data de Nascimento não pode ser em branco."/>
+				<p:outputLabel value="Valor"/>
+				<p:inputNumber value="#{entidade.valor}" required="true" requiredMessage="O campo Valor não pode ser em branco."/>
+				
 			</h:panelGrid>
 		</h:panelGrid>
 </ui:define>
@@ -31,13 +31,12 @@
 	<p:column headerText="ID" sortBy="#{item.id}">
 		<p:outputLabel value="#{item.id}"/>
 	</p:column>
-	<p:column headerText="Aluno">
+	<p:column headerText="Produto">
 		<p:outputLabel value="#{item.nome}"/>
 	</p:column>
-	<p:column headerText="Matrícula">
-		<p:outputLabel value="#{item.matricula}"/>
+	<p:column headerText="Valor">
+		<p:outputLabel value="#{item.valor}"/>
 	</p:column>
-	
 
 </ui:define>
 

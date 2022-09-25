@@ -6,9 +6,8 @@ import java.util.List;
 
 import Enumered.TurnoEnum;
 
-public class Turma {
+public class Turma extends Entidade {
 
-	private Long id;
 	private TurnoEnum turno;
 	private Date dataInicio;
 	private Date dataFim;
@@ -20,12 +19,6 @@ public class Turma {
 		this.alunos = new ArrayList<>();
 	}
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public TurnoEnum getTurno() {
 		return turno;
 	}

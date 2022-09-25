@@ -20,18 +20,61 @@
 		<ui:insert name="conteudo">
 			<p:growl id="growl" showDetail="true" ><p:autoUpdate/></p:growl>
 			<p:panel rendered="#{bean.state eq 'PESQUISAR'}">
+				<h:form id="pesquisa">
+					<p:panel header="Filtros"  collapsed="true" toggleable="true" toggleTitle="toque para alterar"  toggleableHeader="true" >
+						<h:panelGrid columns="3">
+							<ui:insert name="pesquisa">
+								<h:panelGrid>
+									<p:outputLabel value="ID"/>
+									<p:inputNumber value="#{entidade.id}" thousandSeparator="" decimalPlaces="0"/>
+								</h:panelGrid>
+							</ui:insert>
+						</h:panelGrid>
+						<p:commandButton value="Buscar" process="@form" action="#{bean.buscar}" update="@([id$=lista])"/>
+					</p:panel>
+				</h:form>
+			
 				<h:form id="lista">
-					<p:dataTable value="#{bean.lista}" var="item">
+					<p:dataTable value="#{bean.lista}" var="item" paginator="true" rows="5" 
+									rowKey="#{item.id}" rowsPerPageTemplate="5,10,{ShowAll|'Todos'}"
+									paginatorPosition="bottom"
+									currentPageReportTemplate="({currentPage} de {totalPages} Total: {totalRecords})"
+									paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  >
 						<ui:insert name="lista"/>
-						<ui:insert name="acoes"/>
+						<ui:insert name="acoes">
+							<p:column headerText="Ações" style="width: 140px">
+								<ui:insert name="acaoDetalhes">
+									<p:commandButton title="Detalhes" action="#{bean.selecionar}" update="@([id$=modalDetalhes])" 
+													 icon="ui-icon-search" ajax="true" oncomplete="PF('dialogDetalhes').show()" >
+										<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+									</p:commandButton>
+								</ui:insert>
+								<ui:insert name="acaoEditar">
+									<p:commandButton title="Editar" update="@([id$=conteudo])" action="#{bean.prepareEditar}" 
+													 icon="ui-icon-pencil" ajax="true" >
+										<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+									</p:commandButton>
+								</ui:insert>
+								<ui:insert name="acaoExcluir">
+									<p:commandButton title="Excluir" process="@this" onclick="PF('confirmation').show()" 
+													 icon="ui-icon-close">
+										<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+									</p:commandButton>
+								</ui:insert>
+							</p:column>
+						</ui:insert>
+						<f:facet name="footer">
+							<p:commandButton value="Cadastrar" update=":conteudo" process="@this" actionListener="#{bean.prepareCadastrar}" />
+						</f:facet>
 					</p:dataTable>
-					<p:commandButton value="Cadastrar" update=":conteudo" process="@this" actionListener="#{bean.prepareCadastrar}"/>
 				</h:form>
 			</p:panel>
 			<p:panel rendered="#{bean.state eq 'CADASTRAR' || bean.state eq 'EDITAR'}">
-				<h:form>
+				<h:form id="cadastro">
 					<ui:insert name="cadastro"/>
-					<p:commandButton value="Gravar" action="#{bean.gravar}" process="@form" update=":conteudo"/>
+					<ui:insert name="acaoGravar">
+						<p:commandButton value="Gravar" action="#{bean.gravar}" process="@form" update=":conteudo"/>
+					</ui:insert>
 					<p:commandButton value="Voltar" update=":conteudo" process="@this" actionListener="#{bean.voltar}"/>
 				</h:form>
 			</p:panel>
@@ -43,5 +86,14 @@
 		<p:commandButton value="Sim" action="#{bean.excluir}" oncomplete="PF('confirmation').hide()" update="@([id$=lista])" />
 		<p:commandButton type="button" value="Não" onclick="PF('confirmation').hide()" />
 	</p:confirmDialog>
+	
+	<p:dialog id="modalDetalhes" header="Detalhes" widgetVar="dialogDetalhes" style="min-width:300px" height="300" modal="true" dynamic="true" >
+		<ui:insert name="detalhes">
+			<p:outputLabel value="ID:"/>
+			<p:outputLabel value="#{entidade.id}"/>
+		</ui:insert>
+	</p:dialog>
+	
+	<ui:insert name="dialogs" />
 </h:body>
 </html>

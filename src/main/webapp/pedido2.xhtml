@@ -1,0 +1,180 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" 
+	template="/WEB-INF/templates/template.xhtml">
+	
+<ui:param name="bean" value="#{pedido2Bean}"/>
+<ui:param name="entidade" value="#{pedido2Bean.entidade}"/>
+<ui:define name="cadastro">
+	
+		<h:panelGrid columns="2">
+			<h:panelGrid>
+				<p:outputLabel value="Empresa"/>
+				<p:autoComplete value="#{entidade.empresa}" forceSelection="true" var="e" 
+								itemLabel="#{e.razaoSocial}" itemValue="#{e}" 
+								required="true" requiredMessage="O campo Empresa não pode ser em branco"
+								completeMethod="#{bean.completarEmpresa}" converter="empresaConverter"/>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Status"/>
+				<p:selectOneMenu value="#{entidade.status}" required="true" requiredMessage="O campo Status não pode ser em branco." disabled="true">
+					<f:selectItem itemLabel="Selecione" />
+					<f:selectItems value="#{enumBean.statusPedidoEnum}" var="e" itemLabel="#{e.label}" itemValue="#{e}"/>
+				</p:selectOneMenu>
+			</h:panelGrid>
+			<h:panelGrid>
+				<p:outputLabel value="Data Pedido"/>
+				<p:calendar pattern="dd/MM/yyyy hh:mm" value="#{entidade.dataHoraPedido}" />
+			</h:panelGrid>
+		</h:panelGrid>
+		
+		<h:panelGrid id="fieldItens">
+			<p:fieldset legend="Itens" rendered="#{entidade.id ne null}">
+				<h:panelGrid id="gridItens" columns="2">
+					<h:panelGrid>
+						<p:outputLabel value="Produto"/>
+						<p:autoComplete value="#{bean.pedidoItem.produto}" forceSelection="true" var="pr" 
+										itemLabel="#{pr.nome}" itemValue="#{pr}" 
+										completeMethod="#{bean.completarProduto}" converter="produtoConverter" converterMessage="err"/>
+					</h:panelGrid>
+					<h:panelGrid>
+						<p:outputLabel value="Quantidade"/>
+						<p:inputNumber value="#{bean.pedidoItem.quantidade}" decimalSeparator="" thousandSeparator="" />
+					</h:panelGrid>				
+					<p:commandButton value="Add" action="#{bean.adicionarItem}" process="@([id$=gridItens])" 
+									 update="@([id$=gridItens], [id$=listaItens], [id$=griValorTotal])"/>
+				</h:panelGrid>
+				
+				<p:dataTable value="#{entidade.itens}" var="i" id="listaItens">
+					<p:column headerText="Produto">
+						<p:outputLabel value="#{i.produto.nome}"/>
+					</p:column>
+					<p:column headerText="Vl Unitário">
+						<p:outputLabel value="#{i.produto.valor}"/>
+					</p:column>
+					<p:column headerText="Quantidade">
+						<p:outputLabel value="#{i.quantidade}"/>
+					</p:column>
+					<p:column headerText="Vl Item">
+						<p:outputLabel value="#{i.vlItem}"/>
+					</p:column>
+					<p:column headerText="Ações">
+						<p:commandButton title="Excluir" action="#{bean.removerItem(i)}" process="@this" 
+										 update="@([id$=listaItens],[id$=griValorTotal])" icon="pi pi-fw pi-times-circle"/>
+					</p:column>
+				</p:dataTable>
+				<h:panelGrid id="griValorTotal" columns="2" style="float: right; color: red">
+					<p:outputLabel value="Valor Total(R$):"/>
+					<p:outputLabel value="#{entidade.valorTotal}"/>
+				</h:panelGrid>
+			</p:fieldset>
+		</h:panelGrid>
+		
+</ui:define>
+
+<ui:define name="acaoGravar">
+	<p:commandButton value="Gravar" action="#{bean.gravarCabecalho}" process="@form" update="@([id$=cadastro])" rendered="#{entidade.id eq null}"/>
+	<p:commandButton value="Finalizar" onclick="PF('confirmationFinalizar').show()" process="@form" update=":conteudo" rendered="#{entidade.id ne null}"/>
+</ui:define>
+
+<ui:define name="lista">
+
+	<p:column headerText="ID">
+		<p:outputLabel value="#{item.id}"/>
+	</p:column>
+	<p:column headerText="Status">
+		<p:outputLabel value="#{item.status.label}"/>
+	</p:column>
+	<p:column headerText="Data Hora">
+		<p:outputLabel value="#{item.dataHoraPedido}">
+			<f:convertDateTime pattern="dd/MM/yyyy" />
+		</p:outputLabel>
+	</p:column>
+</ui:define>
+
+<ui:define name="pesquisa">
+	<h:panelGrid>
+		<p:outputLabel value="ID"/>
+		<p:inputNumber thousandSeparator="" decimalPlaces="0" value="#{entidade.id}"/>
+	</h:panelGrid>
+	<h:panelGrid>
+		<p:outputLabel value="Empresa"/>
+		<p:autoComplete value="#{entidade.empresa}" forceSelection="true" var="e" 
+						itemLabel="#{e.razaoSocial}" itemValue="#{e}" 
+						completeMethod="#{bean.completarEmpresa}" converter="empresaConverter"/>
+	</h:panelGrid>
+	<h:panelGrid>
+		<p:outputLabel value="Status"/>
+		<p:selectOneMenu value="#{entidade.status}" >
+			<f:selectItem itemLabel="Selecione" />
+			<f:selectItems value="#{enumBean.statusPedidoEnum}" var="e" itemLabel="#{e.label}" itemValue="#{e}"/>
+		</p:selectOneMenu>
+	</h:panelGrid>
+</ui:define>
+
+<ui:define name="acaoEditar">
+	<p:commandButton title="Editar" update="@([id$=conteudo])" action="#{bean.prepareEditar}" icon="ui-icon-pencil" ajax="true" disabled="#{item.status ne 'EM_DIGITACAO'}">
+		<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+	</p:commandButton>
+</ui:define>
+<ui:define name="acaoExcluir">
+	<p:commandButton title="Cancelar" process="@this" onclick="PF('confirmationCancelar').show()" icon="ui-icon-close" disabled="#{item.status ne 'EM_DIGITACAO'}">
+		<f:setPropertyActionListener value="#{item}" target="#{entidade}"/>
+	</p:commandButton>
+</ui:define>
+
+<ui:define name="dialogs">
+	<p:confirmDialog widgetVar="confirmationCancelar" header="Excluir" message="Deseja realmente cancelar esse pedido?" >
+		<p:commandButton value="Sim" action="#{bean.cancelar}" oncomplete="PF('confirmationCancelar').hide()" update="@([id$=lista])" />
+		<p:commandButton type="button" value="Não" onclick="PF('confirmationCancelar').hide()" />
+	</p:confirmDialog>
+	<p:confirmDialog widgetVar="confirmationFinalizar" header="Finalizar" message="Deseja realmente finalizar esse pedido? Não será mais possível edita-lo" >
+		<p:commandButton value="Sim" action="#{bean.finalizar}" oncomplete="PF('confirmationFinalizar').hide()" update="@([id$=conteudo])" />
+		<p:commandButton type="button" value="Não" onclick="PF('confirmationFinalizar').hide()" />
+	</p:confirmDialog>
+</ui:define>
+
+<ui:define name="detalhes">
+	<h:panelGrid columns="1">
+		<h:panelGrid columns="2">
+			<p:outputLabel value="ID:" />
+			<p:outputLabel value="#{entidade.id}" />
+		</h:panelGrid>
+		<h:panelGrid columns="2">
+			<p:outputLabel value="Status:" />
+			<p:outputLabel value="#{entidade.status.label}" />
+		</h:panelGrid>
+		<h:panelGrid columns="2">
+			<p:outputLabel value="Data:" />
+			<p:outputLabel value="#{entidade.dataHoraPedido}" >
+				<f:convertDateTime pattern="dd/MM/yyyy hh:mm"/>
+			</p:outputLabel>
+		</h:panelGrid>
+		<h:panelGrid columns="2">
+			<p:outputLabel value="Total(R$):" />
+			<p:outputLabel value="#{entidade.valorTotal}" />
+		</h:panelGrid>
+	</h:panelGrid>
+	<p:dataTable value="#{entidade.itens}" var="i" id="listaItens" style="width: 600px">
+		<f:facet name="header">
+			<p:outputLabel value="Itens"/>
+		</f:facet>
+		<p:column headerText="Produto">
+			<p:outputLabel value="#{i.produto.nome}"/>
+		</p:column>
+		<p:column headerText="Vl Unitário">
+			<p:outputLabel value="#{i.produto.valor}"/>
+		</p:column>
+		<p:column headerText="Quantidade">
+			<p:outputLabel value="#{i.quantidade}"/>
+		</p:column>
+		<p:column headerText="Vl Item">
+			<p:outputLabel value="#{i.vlItem}"/>
+		</p:column>
+	</p:dataTable>
+</ui:define>
+
+
+</ui:composition>

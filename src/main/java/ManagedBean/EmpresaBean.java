@@ -4,13 +4,13 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import Dao.AlunoDao;
-import Model.Aluno;
+import Dao.EmpresaDao;
+import Model.Empresa;
 import Util.Mensagem;
 
 @ManagedBean
 @ViewScoped
-public class AlunoBean extends GenericBean<Aluno, AlunoDao> {
+public class EmpresaBean extends GenericBean<Empresa, EmpresaDao> {
 	
 	@PostConstruct
 	public void carregar() {
@@ -19,7 +19,7 @@ public class AlunoBean extends GenericBean<Aluno, AlunoDao> {
 	}
 	
 	public void limpar() {
-		this.entidade = new Aluno();
+		this.entidade = new Empresa();
 	}
 	
 	@Override
@@ -33,7 +33,7 @@ public class AlunoBean extends GenericBean<Aluno, AlunoDao> {
 		else
 			this.dao.inserir(entidade);
 		
-		Mensagem.addInfo("Sucesso", "Aluno gravado com sucesso");
+		Mensagem.addInfo("Sucesso", "Empresa gravada com sucesso");
 		
 		limpar();
 		voltar();
@@ -42,7 +42,7 @@ public class AlunoBean extends GenericBean<Aluno, AlunoDao> {
 	
 	public void excluir() {
 		this.dao.deletar(this.entidade.getId());
-		Mensagem.addInfo("Sucesso", "Aluno deletado com sucesso");
+		Mensagem.addInfo("Sucesso", "Empresa deletada com sucesso");
 		this.limpar();
 		this.buscar();
 	}

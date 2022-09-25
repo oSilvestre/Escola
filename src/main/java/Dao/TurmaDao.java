@@ -48,16 +48,25 @@ public class TurmaDao implements Dao<Turma> {
 	}
 
 	@Override
-	public List<Turma> buscar(Turma entidade) {
+	public List<Turma> buscar(Turma entidade, int offset, int limit, String sortField, int sortOrder) {
 		List<Turma> lista = new ArrayList<>();
+		if (sortField == null) sortField = "id";
+		
+		String sort = "DESC";
+		if(sortOrder == 1)
+			sort = "ASC";
 		
 		String sql = " SELECT id, curso, dt_inicio, dt_fim "
 				+ " FROM turma "
-				+ pesquisa(entidade);
+				+ pesquisa(entidade)
+				+ " ORDER BY " + sortField + " " + sort
+				+ " OFFSET ? LIMIT ? ";;
 		
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, offset);
+			ps.setInt(2, limit);
 			ResultSet rs = ps.executeQuery();
 			Turma turma = null;
 			while (rs.next()) {
@@ -79,6 +88,32 @@ public class TurmaDao implements Dao<Turma> {
 		
 		
 		return lista;
+	}
+	
+	public int total(Turma entidade) {
+		int total = 0;
+		
+		String sql = " SELECT count(id) as total "
+				+ " FROM turma "
+				+ pesquisa(entidade);
+		
+		try {
+			Connection conn = Conexao.getConexao();
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				total = rs.getInt("total");
+			}
+			
+			ps.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return total;
 	}
 	
 	private String pesquisa(Turma turma) {

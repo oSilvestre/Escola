@@ -1,26 +1,25 @@
 package Dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import Model.Aluno;
+import Model.Produto;
 import Util.Conexao;
 import inteface.Dao;
 
-public class AlunoDao implements Dao<Aluno> {
+public class ProdutoDao implements Dao<Produto> {
 
-	public void inserir(Aluno aluno) {
-		String sql = "INSERT INTO aluno (nome, matricula, dt_nascimento) values (?,?,?);";
+	public void inserir(Produto t) {
+		String sql = "INSERT INTO produto (nome, descricao, valor) values (?,?,?);";
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, aluno.getNome());
-			ps.setInt(2, aluno.getMatricula());
-			ps.setDate(3, new Date(aluno.getDataNascimento().getTime()));
+			ps.setString(1, t.getNome());
+			ps.setString(2, t.getDescricao());
+			ps.setDouble(3, t.getValor());
 			ps.execute();
 			ps.close();
 			conn.close();
@@ -30,16 +29,16 @@ public class AlunoDao implements Dao<Aluno> {
 		}
 	}
 
-	public List<Aluno> buscar(Aluno entidade, int offset, int limit, String sortField, int sortOrder) {
-		List<Aluno> lista = new ArrayList<>();
+	public List<Produto> buscar(Produto entidade, int offset, int limit, String sortField, int sortOrder) {
+		List<Produto> lista = new ArrayList<>();
 		if (sortField == null) sortField = "id";
 		
 		String sort = "DESC";
 		if(sortOrder == 1)
 			sort = "ASC";
 		
-		String sql = " SELECT id, nome, matricula, dt_nascimento "
-				+ " FROM aluno "
+		String sql = " SELECT id, nome, valor "
+				+ " FROM produto "
 				+ pesquisa(entidade)
 				+ " ORDER BY " + sortField + " " + sort
 				+ " OFFSET ? LIMIT ? ";
@@ -50,15 +49,14 @@ public class AlunoDao implements Dao<Aluno> {
 			ps.setInt(1, offset);
 			ps.setInt(2, limit);
 			ResultSet rs = ps.executeQuery();
-			Aluno aluno = null;
+			Produto t = null;
 			while (rs.next()) {
-				aluno = new Aluno();
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
-				aluno.setMatricula(rs.getInt("matricula"));
-				aluno.setDataNascimento(rs.getDate("dt_nascimento"));
+				t = new Produto();
+				t.setId(rs.getLong("id"));
+				t.setNome(rs.getString("nome"));
+				t.setValor(rs.getDouble("valor"));
 				
-				lista.add(aluno);
+				lista.add(t);
 			}
 			
 			ps.close();
@@ -72,12 +70,12 @@ public class AlunoDao implements Dao<Aluno> {
 		return lista;
 	}
 	
-	public int total(Aluno entidade) {
+	public int total(Produto t) {
 		int total = 0;
 		
 		String sql = " SELECT count(id) as total "
-				+ " FROM aluno "
-				+ pesquisa(entidade);
+				+ " FROM produto "
+				+ pesquisa(t);
 		
 		try {
 			Connection conn = Conexao.getConexao();
@@ -98,17 +96,13 @@ public class AlunoDao implements Dao<Aluno> {
 		return total;
 	}
 	
-	private String pesquisa(Aluno aluno) {
+	private String pesquisa(Produto t) {
 		String retorno = "";
 		
 		retorno += " AND ativo ";
 		
-		if(aluno.getId() != null)
-			retorno += " AND id = "+aluno.getId();
-		if(aluno.getNome() != null)
-			retorno += " AND nome ILIKE '%"+aluno.getNome()+"%'";
-		if(aluno.getMatricula() != null)
-			retorno += " AND matricula = "+aluno.getMatricula();
+		if(t.getId() != null)
+			retorno += " AND id = "+t.getId();
 		
 		if(!retorno.isEmpty()) retorno = " WHERE " + retorno.substring(5);
 		
@@ -116,15 +110,15 @@ public class AlunoDao implements Dao<Aluno> {
 	}
 
 	@Override
-	public void alterar(Aluno t) {
-		String sql =  "UPDATE aluno SET nome = ?, matricula = ?, dt_nascimento = ? WHERE id = ?";
+	public void alterar(Produto t) {
+		String sql =  "UPDATE produto SET nome = ?, descricao = ?, valor = ? WHERE id = ?";
 		
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, t.getNome());
-			ps.setInt(2, t.getMatricula());
-			ps.setDate(3, new Date(t.getDataNascimento().getTime()));
+			ps.setString(2, t.getDescricao());
+			ps.setDouble(3, t.getValor());
 			ps.setLong(4, t.getId());
 			ps.execute();
 			ps.close();
@@ -136,7 +130,7 @@ public class AlunoDao implements Dao<Aluno> {
 
 	@Override
 	public void deletar(Long id) {
-		String sql =  "UPDATE aluno SET ativo = FALSE WHERE id = ?";
+		String sql =  "UPDATE produto SET ativo = FALSE WHERE id = ?";
 		
 		try {
 			Connection conn = Conexao.getConexao();
@@ -151,11 +145,11 @@ public class AlunoDao implements Dao<Aluno> {
 		
 	}
 	
-	public Aluno selecionar(Long id) {
-		Aluno aluno = new Aluno();
+	public Produto selecionar(Long id) {
+		Produto t = new Produto();
 		
-		String sql = " SELECT id, nome, matricula, dt_nascimento "
-				+ " FROM aluno "
+		String sql = " SELECT id, nome, descricao, valor "
+				+ " FROM produto "
 				+ " WHERE id = ?";
 		
 		try {
@@ -164,10 +158,10 @@ public class AlunoDao implements Dao<Aluno> {
 			ps.setLong(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
-				aluno.setMatricula(rs.getInt("matricula"));
-				aluno.setDataNascimento(rs.getDate("dt_nascimento"));
+				t.setId(rs.getLong("id"));
+				t.setNome(rs.getString("nome"));
+				t.setDescricao(rs.getString("descricao"));
+				t.setValor(rs.getDouble("valor"));
 			}
 			ps.close();
 			conn.close();
@@ -175,32 +169,70 @@ public class AlunoDao implements Dao<Aluno> {
 			e.printStackTrace();
 		}
 		
-		return aluno;
+		return t;
 	}
-
-	public List<Aluno> listarAlunos() {
-		List<Aluno> lista = new ArrayList<>();
+	
+	public List<Produto> listarProdutos() {
+		List<Produto> lista = new ArrayList<>();
 		
-		String sql = " SELECT id, nome "
-				+ " FROM aluno ";
+		String sql = " SELECT id, nome, valor "
+				+ " FROM produto ";
 		
 		try {
 			Connection conn = Conexao.getConexao();
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			Aluno aluno = null;
+			Produto t = null;
 			while (rs.next()) {
-				aluno = new Aluno();
-				aluno.setId(rs.getLong("id"));
-				aluno.setNome(rs.getString("nome"));
+				t = new Produto();
+				t.setId(rs.getLong("id"));
+				t.setNome(rs.getString("nome"));
+				t.setValor(rs.getDouble("valor"));
 				
-				lista.add(aluno);
+				lista.add(t);
 			}
+			
 			ps.close();
 			conn.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return lista;
 	}
+
+	public List<Produto> completarProduto(String query) {
+		List<Produto> lista = new ArrayList<>();
+		
+		String sql = " SELECT id, nome, valor "
+				+ " FROM produto "
+				+ " WHERE ativo "
+				+ " AND nome ILIKE '"+query+"%'"
+				+ " LIMIT 10";
+		
+		try {
+			Connection conn = Conexao.getConexao();
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			Produto t = null;
+			while (rs.next()) {
+				t = new Produto();
+				t.setId(rs.getLong("id"));
+				t.setNome(rs.getString("nome"));
+				t.setValor(rs.getDouble("valor"));
+				
+				lista.add(t);
+			}
+			
+			ps.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return lista;
+	}
+
 }

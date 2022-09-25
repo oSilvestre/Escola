@@ -18,4 +18,14 @@ public class Conexao {
 		}
 		return null;
 	}
+	
+	public static Connection getConexao(boolean autoCommit) {
+		Connection conn = getConexao();
+		try {
+			conn.setAutoCommit(autoCommit);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return conn;
+	}
 }

@@ -1,21 +1,13 @@
 package Model;
 
 import java.util.Date;
-import java.util.Objects;
 
-public class Aluno {
+public class Aluno extends Entidade{
 
-	private Long id;
 	private String nome;
 	private Integer matricula;
 	private Date dataNascimento;
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
 	public String getNome() {
 		return nome;
 	}
@@ -34,21 +26,5 @@ public class Aluno {
 	public void setDataNascimento(Date dataNascimento) {
 		this.dataNascimento = dataNascimento;
 	}
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Aluno other = (Aluno) obj;
-		return Objects.equals(id, other.id);
-	}
-	
 	
 }

@@ -4,21 +4,20 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 import Dao.AlunoDao;
 import Dao.TurmaDao;
+import Lazy.LazyList;
 import Model.Aluno;
 import Model.Turma;
 import Util.Mensagem;
 
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class TurmaBean extends GenericBean<Turma, TurmaDao> {
 	
-	private Turma entidade;
 	private TurmaDao dao;
-	private List<Turma> lista;
 	private List<Aluno> alunos;
 	private Aluno alunoSelecionado;
 
@@ -35,7 +34,7 @@ public class TurmaBean extends GenericBean<Turma, TurmaDao> {
 	}
 	
 	public void buscar() {
-		this.lista = this.dao.buscar(this.entidade);
+		this.lista = new LazyList<Turma>(entidade, dao);
 	}
 	
 	public void gravar() {
@@ -96,14 +95,6 @@ public class TurmaBean extends GenericBean<Turma, TurmaDao> {
 
 	public void setEntidade(Turma entidade) {
 		this.entidade = entidade;
-	}
-
-	public List<Turma> getLista() {
-		return lista;
-	}
-
-	public void setLista(List<Turma> lista) {
-		this.lista = lista;
 	}
 
 	public List<Aluno> getAlunos() {

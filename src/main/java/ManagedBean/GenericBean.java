@@ -1,53 +1,63 @@
 package ManagedBean;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
 
-import javax.annotation.PostConstruct;
+import javax.faces.bean.ViewScoped;
 
 import Enumered.StateEnum;
+import Lazy.LazyList;
+import Model.Entidade;
+import Util.Mensagem;
 import inteface.Dao;
-
-public class GenericBean<T,T2> {
+@ViewScoped
+public class GenericBean<T extends Entidade, T2> {
 	
 	private StateEnum state = StateEnum.PESQUISAR;
-//	protected Class<T> entidade;
-//	protected Dao<T> dao;// = (Dao<T>) entidade.newInstance();
-//	protected List<T> lista;
+	protected T entidade;
+	protected Dao<T> dao;
+	protected LazyList<?> lista;
 	
+	@SuppressWarnings("unchecked")
+	public GenericBean(){
+		try {
+			entidade = ((Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).newInstance();
+			dao = (Dao<T>) ((Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1]).newInstance();
+		} catch (InstantiationException | IllegalAccessException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
-//	public GenericBean(Class<T> clazz)  {
-//		try {
-////			this.entidade = T.newInstance();
-//			this.entidade = (Class<T>) clazz.newInstance();
-////	        Class<?> clazz = (Class<T>) ((ParameterizedType)  .getGenericSuperclass()).getActualTypeArguments()[0];
-//			this.dao = (Dao<T>) entidade.newInstance();
-//		} catch (IllegalAccessException | InstantiationException e) {
-//			e.printStackTrace();
-//		}
-//		this.buscar();
-//	}
+	public void limpar() {
+	}
 	
-//	public void limpar() {
-//		try {
-//			this.entidade = (Class<T>) entidade.newInstance();
-//		} catch (IllegalAccessException | InstantiationException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	public void buscar() {
-//		this.lista = this.dao.buscar((T) this.entidade);
-//	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void buscar() {
+		this.lista = new LazyList((Entidade) entidade, dao);
+	}
 	
 	public void prepareCadastrar() {
 		System.out.println("prepare cadastrar");
 		state = StateEnum.CADASTRAR;
 	}
 	
+	public void gravar() {
+		if(entidade.getId() != null)
+			this.dao.alterar(entidade);
+		else
+			this.dao.inserir(entidade);
+		
+		Mensagem.addInfo("Sucesso", "Gravado com sucesso");
+		
+		limpar();
+		voltar();
+		buscar();
+	}
+	
 	public void voltar() {
 		System.out.println("voltar");
 		state = StateEnum.PESQUISAR;
+		limpar();
+		buscar();
 	}
 	
 	public void prepareEditar() {
@@ -67,6 +77,22 @@ public class GenericBean<T,T2> {
 
 	public void setState(StateEnum state) {
 		this.state = state;
+	}
+
+	public T getEntidade() {
+		return entidade;
+	}
+
+	public void setEntidade(T entidade) {
+		this.entidade = entidade;
+	}
+
+	public LazyList<?> getLista() {
+		return lista;
+	}
+
+	public void setLista(LazyList<?> lista) {
+		this.lista = lista;
 	}
 
 
