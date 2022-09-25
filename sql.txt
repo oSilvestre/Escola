@@ -1,0 +1,64 @@
+CREATE TABLE public.aluno (
+	id serial4 NOT NULL,
+	nome varchar NULL,
+	matricula int4 NULL,
+	dt_nascimento date NULL,
+	ativo bool NULL DEFAULT true,
+	CONSTRAINT aluno_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.turma (
+	id serial4 NOT NULL,
+	turno int4 NULL,
+	dt_inicio date NULL,
+	dt_fim date NULL,
+	horario time NULL,
+	curso varchar NULL,
+	ativo bool NULL DEFAULT true,
+	CONSTRAINT turma_pk PRIMARY KEY (id)
+);
+
+
+CREATE TABLE public.turma_aluno (
+	id_turma int4 NULL,
+	id_aluno int4 NULL,
+	CONSTRAINT turma_aluno_fk FOREIGN KEY (id_aluno) REFERENCES public.aluno(id),
+	CONSTRAINT turma_aluno_fk_1 FOREIGN KEY (id_turma) REFERENCES public.turma(id)
+);
+
+CREATE TABLE public.empresa (
+	id serial4 NOT NULL,
+	razao_social varchar NULL,
+	nome_fantasia varchar NULL,
+	cnpj float4 NULL,
+	ativo bool NULL DEFAULT true,
+	CONSTRAINT empresa_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.produto (
+	id serial4 NOT NULL,
+	nome varchar NULL,
+	descricao varchar NULL,
+	ativo bool NULL DEFAULT true,
+	valor float8 NULL,
+	CONSTRAINT produto_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE public.pedido (
+	id serial4 NOT NULL,
+	status int4 NULL,
+	ativo bool NULL DEFAULT true,
+	data_hora_pedido timestamp NULL,
+	id_empresa int4 NULL,
+	CONSTRAINT pedido_pk PRIMARY KEY (id),
+	CONSTRAINT pedido_fk FOREIGN KEY (id_empresa) REFERENCES public.empresa(id)
+);
+
+CREATE TABLE public.pedido_item (
+	id_pedido int4 NULL,
+	id_produto int4 NULL,
+	id serial4 NOT NULL,
+	quantidade int4 NULL,
+	CONSTRAINT pedido_produto_fk FOREIGN KEY (id_produto) REFERENCES public.produto(id),
+	CONSTRAINT pedido_produto_fk2 FOREIGN KEY (id_pedido) REFERENCES public.pedido(id)
+);
